@@ -568,7 +568,7 @@ func (c *controller) updatePolicyStatuses(ctx context.Context) error {
 		status := policy.GetStatus()
 		status.SetReady(ready, message)
 		status.Autogen.Rules = nil
-		rules := autogen.Default.ComputeRules(policy, "")
+		rules := autogen.ComputeRules(policy, "")
 		setRuleCount(rules, status)
 		for _, rule := range rules {
 			if strings.HasPrefix(rule.Name, "autogen-") {
@@ -1128,8 +1128,7 @@ func (gvs GroupVersionResourceScope) String() string {
 // mergeWebhook merges the matching kinds of the policy to webhook.rule
 func (c *controller) mergeWebhook(dst *webhook, policy kyvernov1.PolicyInterface, updateValidate bool) {
 	var matchedGVK []string
-	matchedGVK = append(matchedGVK, autogen.Default.GetAutogenKinds(policy)...)
-	for _, rule := range policy.GetSpec().Rules {
+	for _, rule := range autogen.ComputeRules(policy, "") {
 		// matching kinds in generate policies need to be added to both webhook
 		if rule.HasGenerate() {
 			matchedGVK = append(matchedGVK, rule.MatchResources.GetKinds()...)
